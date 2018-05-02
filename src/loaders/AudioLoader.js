@@ -8,29 +8,32 @@ import { DefaultLoadingManager } from './LoadingManager.js';
 
 function AudioLoader( manager ) {
 
-	this.manager = ( manager !== undefined ) ? manager : DefaultLoadingManager;
+    this.manager = ( manager !== undefined ) ? manager : DefaultLoadingManager;
 
 }
 
 Object.assign( AudioLoader.prototype, {
 
-	load: function ( url, onLoad, onProgress, onError ) {
+    load: function ( url, onLoad, onProgress, onError ) {
 
-		var loader = new FileLoader( this.manager );
-		loader.setResponseType( 'arraybuffer' );
-		loader.load( url, function ( buffer ) {
+        var loader = new FileLoader( this.manager );
+        loader.setResponseType( 'arraybuffer' );
+        loader.load( url, function ( buffer ) {
 
-			var context = AudioContext.getContext();
+            // Create a copy of the buffer. The `decodeAudioData` method
+            // detaches the buffer when complete, preventing reuse.
+            var bufferCopy = buffer.slice( 0 );
 
-			context.decodeAudioData( buffer, function ( audioBuffer ) {
+            var context = AudioContext.getContext();
+            context.decodeAudioData( bufferCopy, function ( audioBuffer ) {
 
-				onLoad( audioBuffer );
+                onLoad( audioBuffer );
 
-			} );
+            } );
 
-		}, onProgress, onError );
+        }, onProgress, onError );
 
-	}
+    }
 
 } );
 
