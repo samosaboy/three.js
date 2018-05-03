@@ -18,24 +18,24 @@ Object.assign( AudioLoader.prototype, {
 
         var loader = new FileLoader( this.manager );
         loader.setResponseType( 'arraybuffer' );
-        loader.setDecodeCallback( decode );
-        loader.load( url, function ( audioBuffer ) {
+        loader.load( url, function ( buffer ) {
 
-            onLoad( audioBuffer );
+            // Create a copy of the buffer. The `decodeAudioData` method
+            // detaches the buffer when complete, preventing reuse.
+            var bufferCopy = buffer.slice( 0 );
+
+            var context = AudioContext.getContext();
+            context.decodeAudioData( bufferCopy, function ( audioBuffer ) {
+
+                onLoad( audioBuffer );
+
+            } );
 
         }, onProgress, onError );
 
     }
 
 } );
-
-function decode( buffer, onLoad ) {
-
-    var context = AudioContext.getContext();
-
-    context.decodeAudioData( buffer, onLoad );
-
-}
 
 
 export { AudioLoader };
