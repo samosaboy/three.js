@@ -29658,7 +29658,7 @@ CircleBufferGeometry.prototype.constructor = CircleBufferGeometry;
 
 
 
-var Geometries = Object.freeze({
+var Geometries = /*#__PURE__*/Object.freeze({
 	WireframeGeometry: WireframeGeometry,
 	ParametricGeometry: ParametricGeometry,
 	ParametricBufferGeometry: ParametricBufferGeometry,
@@ -30428,7 +30428,7 @@ LineDashedMaterial.prototype.copy = function ( source ) {
 
 
 
-var Materials = Object.freeze({
+var Materials = /*#__PURE__*/Object.freeze({
 	ShadowMaterial: ShadowMaterial,
 	SpriteMaterial: SpriteMaterial,
 	RawShaderMaterial: RawShaderMaterial,
@@ -30593,302 +30593,328 @@ var loading = {};
 
 function FileLoader( manager ) {
 
-	this.manager = ( manager !== undefined ) ? manager : DefaultLoadingManager;
+    this.manager = ( manager !== undefined ) ? manager : DefaultLoadingManager;
 
 }
 
 Object.assign( FileLoader.prototype, {
 
-	load: function ( url, onLoad, onProgress, onError ) {
+    load: function ( url, onLoad, onProgress, onError ) {
 
-		if ( url === undefined ) url = '';
+        if ( url === undefined ) url = '';
 
-		if ( this.path !== undefined ) url = this.path + url;
+        if ( this.path !== undefined ) url = this.path + url;
 
-		url = this.manager.resolveURL( url );
+        url = this.manager.resolveURL( url );
 
-		var scope = this;
+        var scope = this;
 
-		var cached = Cache.get( url );
+        var cached = Cache.get( url );
 
-		if ( cached !== undefined ) {
+        if ( cached !== undefined ) {
 
-			scope.manager.itemStart( url );
+            scope.manager.itemStart( url );
 
-			setTimeout( function () {
+            setTimeout( function () {
 
-				if ( onLoad ) onLoad( cached );
+                if ( onLoad ) onLoad( cached );
 
-				scope.manager.itemEnd( url );
+                scope.manager.itemEnd( url );
 
-			}, 0 );
+            }, 0 );
 
-			return cached;
+            return cached;
 
-		}
+        }
 
-		// Check if request is duplicate
+        // Check if request is duplicate
 
-		if ( loading[ url ] !== undefined ) {
+        if ( loading[ url ] !== undefined ) {
 
-			loading[ url ].push( {
+            loading[ url ].push( {
 
-				onLoad: onLoad,
-				onProgress: onProgress,
-				onError: onError
+                onLoad: onLoad,
+                onProgress: onProgress,
+                onError: onError
 
-			} );
+            } );
 
-			return;
+            return;
 
-		}
+        }
 
-		// Check for data: URI
-		var dataUriRegex = /^data:(.*?)(;base64)?,(.*)$/;
-		var dataUriRegexResult = url.match( dataUriRegex );
+        // Check for data: URI
+        var dataUriRegex = /^data:(.*?)(;base64)?,(.*)$/;
+        var dataUriRegexResult = url.match( dataUriRegex );
 
-		// Safari can not handle Data URIs through XMLHttpRequest so process manually
-		if ( dataUriRegexResult ) {
+        // Safari can not handle Data URIs through XMLHttpRequest so process manually
+        if ( dataUriRegexResult ) {
 
-			var mimeType = dataUriRegexResult[ 1 ];
-			var isBase64 = !! dataUriRegexResult[ 2 ];
-			var data = dataUriRegexResult[ 3 ];
+            var mimeType = dataUriRegexResult[ 1 ];
+            var isBase64 = !! dataUriRegexResult[ 2 ];
+            var data = dataUriRegexResult[ 3 ];
 
-			data = window.decodeURIComponent( data );
+            data = window.decodeURIComponent( data );
 
-			if ( isBase64 ) data = window.atob( data );
+            if ( isBase64 ) data = window.atob( data );
 
-			try {
+            try {
 
-				var response;
-				var responseType = ( this.responseType || '' ).toLowerCase();
+                var response;
+                var responseType = ( this.responseType || '' ).toLowerCase();
 
-				switch ( responseType ) {
+                switch ( responseType ) {
 
-					case 'arraybuffer':
-					case 'blob':
+                    case 'arraybuffer':
+                    case 'blob':
 
-						var view = new Uint8Array( data.length );
+                        var view = new Uint8Array( data.length );
 
-						for ( var i = 0; i < data.length; i ++ ) {
+                        for ( var i = 0; i < data.length; i ++ ) {
 
-							view[ i ] = data.charCodeAt( i );
+                            view[ i ] = data.charCodeAt( i );
 
-						}
+                        }
 
-						if ( responseType === 'blob' ) {
+                        if ( responseType === 'blob' ) {
 
-							response = new Blob( [ view.buffer ], { type: mimeType } );
+                            response = new Blob( [ view.buffer ], { type: mimeType } );
 
-						} else {
+                        } else {
 
-							response = view.buffer;
+                            response = view.buffer;
 
-						}
+                        }
 
-						break;
+                        break;
 
-					case 'document':
+                    case 'document':
 
-						var parser = new DOMParser();
-						response = parser.parseFromString( data, mimeType );
+                        var parser = new DOMParser();
+                        response = parser.parseFromString( data, mimeType );
 
-						break;
+                        break;
 
-					case 'json':
+                    case 'json':
 
-						response = JSON.parse( data );
+                        response = JSON.parse( data );
 
-						break;
+                        break;
 
-					default: // 'text' or other
+                    default: // 'text' or other
 
-						response = data;
+                        response = data;
 
-						break;
+                        break;
 
-				}
+                }
 
-				// Wait for next browser tick like standard XMLHttpRequest event dispatching does
-				window.setTimeout( function () {
+                // Wait for next browser tick like standard XMLHttpRequest event dispatching does
+                window.setTimeout( function () {
 
-					if ( onLoad ) onLoad( response );
+                    if ( onLoad ) onLoad( response );
 
-					scope.manager.itemEnd( url );
+                    scope.manager.itemEnd( url );
 
-				}, 0 );
+                }, 0 );
 
-			} catch ( error ) {
+            } catch ( error ) {
 
-				// Wait for next browser tick like standard XMLHttpRequest event dispatching does
-				window.setTimeout( function () {
+                // Wait for next browser tick like standard XMLHttpRequest event dispatching does
+                window.setTimeout( function () {
 
-					if ( onError ) onError( error );
+                    if ( onError ) onError( error );
 
-					scope.manager.itemEnd( url );
-					scope.manager.itemError( url );
+                    scope.manager.itemEnd( url );
+                    scope.manager.itemError( url );
 
-				}, 0 );
+                }, 0 );
 
-			}
+            }
 
-		} else {
+        } else {
 
-			// Initialise array for duplicate requests
+            // Initialise array for duplicate requests
 
-			loading[ url ] = [];
+            loading[ url ] = [];
 
-			loading[ url ].push( {
+            loading[ url ].push( {
 
-				onLoad: onLoad,
-				onProgress: onProgress,
-				onError: onError
+                onLoad: onLoad,
+                onProgress: onProgress,
+                onError: onError
 
-			} );
+            } );
 
-			var request = new XMLHttpRequest();
+            var request = new XMLHttpRequest();
 
-			request.open( 'GET', url, true );
+            request.open( 'GET', url, true );
 
-			request.addEventListener( 'load', function ( event ) {
+            request.addEventListener( 'load', function ( event ) {
 
-				var response = this.response;
+                var response = this.response;
 
-				Cache.add( url, response );
+                Cache.add( url, response );
 
-				var callbacks = loading[ url ];
+                var callbacks = loading[ url ];
 
-				delete loading[ url ];
+                delete loading[ url ];
 
-				if ( this.status === 200 ) {
+                if ( this.status === 200 ) {
 
-					for ( var i = 0, il = callbacks.length; i < il; i ++ ) {
+                    if ( scope.decodeCallback !== undefined ) {
 
-						var callback = callbacks[ i ];
-						if ( callback.onLoad ) callback.onLoad( response );
+                        scope.decodeCallback( response, function ( decodedResponse ) {
 
-					}
+                            for ( var i = 0, il = callbacks.length; i < il; i ++ ) {
 
-					scope.manager.itemEnd( url );
+                                var callback = callbacks[ i ];
+                                if ( callback.onLoad ) callback.onLoad( decodedResponse );
 
-				} else if ( this.status === 0 ) {
+                            }
 
-					// Some browsers return HTTP Status 0 when using non-http protocol
-					// e.g. 'file://' or 'data://'. Handle as success.
+                            scope.manager.itemEnd( url );
 
-					console.warn( 'THREE.FileLoader: HTTP Status 0 received.' );
+                        } );
 
-					for ( var i = 0, il = callbacks.length; i < il; i ++ ) {
+                    } else {
 
-						var callback = callbacks[ i ];
-						if ( callback.onLoad ) callback.onLoad( response );
+                        for ( var i = 0, il = callbacks.length; i < il; i ++ ) {
 
-					}
+                            var callback = callbacks[ i ];
+                            if ( callback.onLoad ) callback.onLoad( response );
 
-					scope.manager.itemEnd( url );
+                        }
 
-				} else {
+                        scope.manager.itemEnd( url );
 
-					for ( var i = 0, il = callbacks.length; i < il; i ++ ) {
+                    }
 
-						var callback = callbacks[ i ];
-						if ( callback.onError ) callback.onError( event );
+                } else if ( this.status === 0 ) {
 
-					}
+                    // Some browsers return HTTP Status 0 when using non-http protocol
+                    // e.g. 'file://' or 'data://'. Handle as success.
 
-					scope.manager.itemEnd( url );
-					scope.manager.itemError( url );
+                    console.warn( 'THREE.FileLoader: HTTP Status 0 received.' );
 
-				}
+                    for ( var i = 0, il = callbacks.length; i < il; i ++ ) {
 
-			}, false );
+                        var callback = callbacks[ i ];
+                        if ( callback.onLoad ) callback.onLoad( response );
 
-			request.addEventListener( 'progress', function ( event ) {
+                    }
 
-				var callbacks = loading[ url ];
+                    scope.manager.itemEnd( url );
 
-				for ( var i = 0, il = callbacks.length; i < il; i ++ ) {
+                } else {
 
-					var callback = callbacks[ i ];
-					if ( callback.onProgress ) callback.onProgress( event );
+                    for ( var i = 0, il = callbacks.length; i < il; i ++ ) {
 
-				}
+                        var callback = callbacks[ i ];
+                        if ( callback.onError ) callback.onError( event );
 
-			}, false );
+                    }
 
-			request.addEventListener( 'error', function ( event ) {
+                    scope.manager.itemEnd( url );
+                    scope.manager.itemError( url );
 
-				var callbacks = loading[ url ];
+                }
 
-				delete loading[ url ];
+            }, false );
 
-				for ( var i = 0, il = callbacks.length; i < il; i ++ ) {
+            request.addEventListener( 'progress', function ( event ) {
 
-					var callback = callbacks[ i ];
-					if ( callback.onError ) callback.onError( event );
+                var callbacks = loading[ url ];
 
-				}
+                for ( var i = 0, il = callbacks.length; i < il; i ++ ) {
 
-				scope.manager.itemEnd( url );
-				scope.manager.itemError( url );
+                    var callback = callbacks[ i ];
+                    if ( callback.onProgress ) callback.onProgress( event );
 
-			}, false );
+                }
 
-			if ( this.responseType !== undefined ) request.responseType = this.responseType;
-			if ( this.withCredentials !== undefined ) request.withCredentials = this.withCredentials;
+            }, false );
 
-			if ( request.overrideMimeType ) request.overrideMimeType( this.mimeType !== undefined ? this.mimeType : 'text/plain' );
+            request.addEventListener( 'error', function ( event ) {
 
-			for ( var header in this.requestHeader ) {
+                var callbacks = loading[ url ];
 
-				request.setRequestHeader( header, this.requestHeader[ header ] );
+                delete loading[ url ];
 
-			}
+                for ( var i = 0, il = callbacks.length; i < il; i ++ ) {
 
-			request.send( null );
+                    var callback = callbacks[ i ];
+                    if ( callback.onError ) callback.onError( event );
 
-		}
+                }
 
-		scope.manager.itemStart( url );
+                scope.manager.itemEnd( url );
+                scope.manager.itemError( url );
 
-		return request;
+            }, false );
 
-	},
+            if ( this.responseType !== undefined ) request.responseType = this.responseType;
+            if ( this.withCredentials !== undefined ) request.withCredentials = this.withCredentials;
 
-	setPath: function ( value ) {
+            if ( request.overrideMimeType ) request.overrideMimeType( this.mimeType !== undefined ? this.mimeType : 'text/plain' );
 
-		this.path = value;
-		return this;
+            for ( var header in this.requestHeader ) {
 
-	},
+                request.setRequestHeader( header, this.requestHeader[ header ] );
 
-	setResponseType: function ( value ) {
+            }
 
-		this.responseType = value;
-		return this;
+            request.send( null );
 
-	},
+        }
 
-	setWithCredentials: function ( value ) {
+        scope.manager.itemStart( url );
 
-		this.withCredentials = value;
-		return this;
+        return request;
 
-	},
+    },
 
-	setMimeType: function ( value ) {
+    setPath: function ( value ) {
 
-		this.mimeType = value;
-		return this;
+        this.path = value;
+        return this;
 
-	},
+    },
 
-	setRequestHeader: function ( value ) {
+    setResponseType: function ( value ) {
 
-		this.requestHeader = value;
-		return this;
+        this.responseType = value;
+        return this;
 
-	}
+    },
+
+    setWithCredentials: function ( value ) {
+
+        this.withCredentials = value;
+        return this;
+
+    },
+
+    setMimeType: function ( value ) {
+
+        this.mimeType = value;
+        return this;
+
+    },
+
+    setRequestHeader: function ( value ) {
+
+        this.requestHeader = value;
+        return this;
+
+    },
+
+    setDecodeCallback: function ( value ) {
+
+        this.decodeCallback = value;
+        return this;
+
+    }
 
 } );
 
@@ -31118,6 +31144,7 @@ Object.assign( DataTextureLoader.prototype, {
  * @author mrdoob / http://mrdoob.com/
  */
 
+
 function ImageLoader( manager ) {
 
 	this.manager = ( manager !== undefined ) ? manager : DefaultLoadingManager;
@@ -31219,6 +31246,7 @@ Object.assign( ImageLoader.prototype, {
  * @author mrdoob / http://mrdoob.com/
  */
 
+
 function CubeTextureLoader( manager ) {
 
 	this.manager = ( manager !== undefined ) ? manager : DefaultLoadingManager;
@@ -31288,6 +31316,7 @@ Object.assign( CubeTextureLoader.prototype, {
 /**
  * @author mrdoob / http://mrdoob.com/
  */
+
 
 function TextureLoader( manager ) {
 
@@ -32009,9 +32038,7 @@ function CubicPoly() {
 //
 
 var tmp = new Vector3();
-var px = new CubicPoly();
-var py = new CubicPoly();
-var pz = new CubicPoly();
+var px = new CubicPoly(), py = new CubicPoly(), pz = new CubicPoly();
 
 function CatmullRomCurve3( points, closed, curveType, tension ) {
 
@@ -32796,7 +32823,7 @@ SplineCurve.prototype.fromJSON = function ( json ) {
 
 
 
-var Curves = Object.freeze({
+var Curves = /*#__PURE__*/Object.freeze({
 	ArcCurve: ArcCurve,
 	CatmullRomCurve3: CatmullRomCurve3,
 	CubicBezierCurve: CubicBezierCurve,
@@ -35216,7 +35243,8 @@ Object.assign( AnimationClip, {
 
 			'name': clip.name,
 			'duration': clip.duration,
-			'tracks': tracks
+			'tracks': tracks,
+			'uuid': clip.uuid
 
 		};
 
@@ -37099,7 +37127,11 @@ Object.assign( ObjectLoader.prototype, {
 
 		for ( var i = 0; i < json.length; i ++ ) {
 
-			var clip = AnimationClip.parse( json[ i ] );
+			var data = json[ i ];
+
+			var clip = AnimationClip.parse( data );
+
+			if ( data.uuid !== undefined ) clip.uuid = data.uuid;
 
 			animations.push( clip );
 
@@ -37539,6 +37571,7 @@ var TEXTURE_FILTER = {
  * @author thespite / http://clicktorelease.com/
  */
 
+
 function ImageBitmapLoader( manager ) {
 
 	if ( typeof createImageBitmap === 'undefined' ) {
@@ -37922,6 +37955,7 @@ Object.assign( ShapePath.prototype, {
  * @author mrdoob / http://mrdoob.com/
  */
 
+
 function Font( data ) {
 
 	this.type = 'Font';
@@ -38149,29 +38183,34 @@ var AudioContext = {
 
 function AudioLoader( manager ) {
 
-	this.manager = ( manager !== undefined ) ? manager : DefaultLoadingManager;
+    this.manager = ( manager !== undefined ) ? manager : DefaultLoadingManager;
 
 }
 
 Object.assign( AudioLoader.prototype, {
 
-	load: function ( url, onLoad, onProgress, onError ) {
+    load: function ( url, onLoad, onProgress, onError ) {
 
-		var loader = new FileLoader( this.manager );
-		loader.setResponseType( 'arraybuffer' );
-		loader.load( url, function ( buffer ) {
+        var loader = new FileLoader( this.manager );
+        loader.setResponseType( 'arraybuffer' );
+        loader.load( url, function ( buffer ) {
 
-			var context = AudioContext.getContext();
+            // Create a copy of the buffer. The `decodeAudioData` method
+            // detaches the buffer when complete, preventing reuse.
+            var bufferCopy = buffer.slice( 0 );
 
-			context.decodeAudioData( buffer, function ( audioBuffer ) {
+            console.error("test");
 
-				onLoad( audioBuffer );
+            var context = AudioContext.getContext();
+            context.decodeAudioData( bufferCopy, function ( audioBuffer ) {
 
-			} );
+                onLoad( audioBuffer );
 
-		}, onProgress, onError );
+            } );
 
-	}
+        }, onProgress, onError );
+
+    }
 
 } );
 
@@ -38541,6 +38580,17 @@ Audio.prototype = Object.assign( Object.create( Object3D.prototype ), {
 		this.hasPlaybackControl = false;
 		this.sourceType = 'audioNode';
 		this.source = audioNode;
+		this.connect();
+
+		return this;
+
+	},
+
+	setMediaElementSource: function ( mediaElement ) {
+
+		this.hasPlaybackControl = false;
+		this.sourceType = 'mediaNode';
+		this.source = this.context.createMediaElementSource( mediaElement );
 		this.connect();
 
 		return this;
@@ -43952,8 +44002,7 @@ PlaneHelper.prototype.updateMatrixWorld = function ( force ) {
  *  headWidth - Number
  */
 
-var lineGeometry;
-var coneGeometry;
+var lineGeometry, coneGeometry;
 
 function ArrowHelper( dir, origin, length, color, headLength, headWidth ) {
 
