@@ -24,7 +24,7 @@ Object.assign( AudioLoader.prototype, {
             // detaches the buffer when complete, preventing reuse.
             var bufferCopy = buffer.slice( 0 );
 
-            console.log('test');
+            console.error("test");
 
             var context = AudioContext.getContext();
             context.decodeAudioData( bufferCopy, function ( audioBuffer ) {
